@@ -3,55 +3,55 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default class CreateExercises extends Component {
+export default class EditFoodItem extends Component {
     constructor(props){
         super(props);
 
-        this.onChangeUsername = this.onChangeUsername.bind(this);
-        this.onChangeDescription = this.onChangeDescription.bind(this);
-        this.onChangeDuration = this.onChangeDuration.bind(this);
+        this.onChangeName = this.onChangeName.bind(this);
+        this.onChangeCalories = this.onChangeCalories.bind(this);
         this.onChangeDate = this.onChangeDate.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
 
         this.state = {
-            username: '',
-            description: '',
-            duration: '',
+            name: '',
+            calories: '',
             date: new Date(),
             users: []
         }
     }
 
+    //gets data when the app loads
     componentDidMount() {
-        axios.get('https://secret-sierra-65628.herokuapp.com/users/')
+        axios.get('localhost:5000/foodItems/' + this.props.match.params.id)
+            .then(response => {
+                this.setState({
+                    name: response.data.name,
+                    calories: response.data.calories,
+                    date: new Date(response.data.date)
+                })
+            })
+
+        axios.get('localhost:5000/users/')
             .then(response => {
                 if(response.data.length > 0){
                     this.setState({
                         users:response.data.map(user => user.username),
-                        username: response.data[0].username
                     })
                 }
             })
     }
 
-    //method for changing the username state
-    onChangeUsername(e) {
+    //method for changing the name state
+    onChangeName(e) {
         this.setState({
-            username: e.target.value
+            name: e.target.value
         });
     }
 
-    //method for changing the description state
-    onChangeDescription(e) {
+    //method for changing the calories state
+    onChangeCalories(e) {
         this.setState({
-            description: e.target.value
-        });
-    }
-
-    //method for changing the duration state
-    onChangeDuration(e) {
-        this.setState({
-            duration: e.target.value
+            calories: e.target.value
         });
     }
 
@@ -68,18 +68,17 @@ export default class CreateExercises extends Component {
         
         //only use variable if they are going to stay in that method
         //initialize variable 
-        const exercise = {
-            username: this.state.username,
-            description: this.state.description,
-            duration: this.state.duration,
+        const foodItem = {
+            name: this.state.username,
+            calories: this.state.calories,
             date: this.state.date
         }
 
-        console.log(exercise);
+        console.log(foodItem);
 
-        axios.post('https://secret-sierra-65628.herokuapp.com/exercises/add', exercise)
+        axios.post('https://morning-brushlands-95842.herokuapp.com/foodItems/update/' + this.props.match.params.id, foodItem)
             .then(res => console.log(res.data))
-            .catch(err => console.log(err)); 
+            .catch(err => console.log(err));
 
         window.location = '/'; //takes person back to home page
     }
@@ -87,37 +86,34 @@ export default class CreateExercises extends Component {
     render() {
         return (
             <div>
-                <h3>Create New Exercise</h3>
+                <h3>Edit Food Log</h3>
                 <form onSubmit={this.onSubmit}>
                     <div className="form-group">
-                        <label>Username: </label>
-                        <select ref="userInput" 
+                        <label>Name of Food: </label>
+                        <input type="text"
                             required
                             className="form-control"
-                            value={this.state.username}
-                            onChange={this.onChangeUsername}>
+                            value={this.state.name}
+                            onChange={this.onChangeName}/>
+                        {/* <select ref="userInput" 
+                            required
+                            className="form-control"
+                            value={this.state.name}
+                            onChange={this.onChangeName}>
                             {
                                 this.state.users.map(function(user) {
                                     return <option key={user} value={user}>{user}</option>;
                                 })
                             }
-                        </select>
+                        </select> */}
                     </div>
                     <div className="form-group">
-                        <label>Description: </label>
+                        <label>Amount of Calories: </label>
                         <input type="text" 
                             required
                             className="form-control"
-                            value={this.state.description}
-                            onChange={this.onChangeDescription}/>
-                    </div>
-                    <div className="form-group">
-                        <label>Duration (In minutes):</label>
-                        <input type="text"
-                            className="form-control"
-                            value={this.state.duration}
-                            onChange={this.onChangeDuration} 
-                        />
+                            value={this.state.calories}
+                            onChange={this.onChangeCalories}/>
                     </div>
                     <div className="form-group">
                         <label>Date:</label>
@@ -128,7 +124,7 @@ export default class CreateExercises extends Component {
                     </div>
 
                     <div className="form-group">
-                        <input type="submit" value="Create Exercise Log" className="btn btn-primary" />
+                        <input type="submit" value="Edit FoodItem Log" className="btn btn-primary" />
                     </div>
                 </form>
             </div>
